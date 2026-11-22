@@ -73,12 +73,18 @@ class Lofi {
 
     // compressor no fim: deixa o som cheio sem estourar nos picos do bumbo
     const glue = ctx.createDynamicsCompressor()
-    glue.threshold.value = -18
+    glue.threshold.value = -16
     glue.knee.value = 12
-    glue.ratio.value = 12
-    glue.attack.value = 0.003
+    glue.ratio.value = 6
+    glue.attack.value = 0.02 // ataque lento: não deforma a onda do baixo
     glue.release.value = 0.25
-    glue.connect(ctx.destination)
+    // saturação suave no fim: um pico que passe é arredondado (som de fita), não cortado
+    const saturate = ctx.createWaveShaper()
+    const curve = new Float32Array(1024)
+    for (let i = 0; i < curve.length; i++) curve[i] = Math.tanh((i / (curve.length - 1)) * 2 - 1) // nunca passa de 0,76
+    saturate.curve = curve
+    saturate.oversample = '4x'
+    glue.connect(saturate).connect(ctx.destination)
     this.master = ctx.createGain()
     this.master.gain.value = 0
     this.master.connect(glue)
@@ -145,7 +151,8 @@ class Lofi {
 
   private gainFor(volume: number) {
     // calibrado para soar como uma música própria no mesmo volume (medido: ~-22 dB em 25%)
-    return Math.max(0, Math.min(1, volume)) * 4.5
+    // raiz: o volume cresce suave e o máximo não estoura (25% → 1, 80% → 1,8)
+    return 2 * Math.sqrt(Math.max(0, Math.min(1, volume)))
   }
 
   private fadeTo(value: number, seconds: number) {
@@ -234,7 +241,7 @@ class Lofi {
     o.frequency.setValueAtTime(110, t)
     o.frequency.exponentialRampToValueAtTime(42, t + 0.12)
     const g = ctx.createGain()
-    g.gain.setValueAtTime(0.5, t)
+    g.gain.setValueAtTime(0.35, t)
     g.gain.exponentialRampToValueAtTime(0.0001, t + 0.35)
     o.connect(g).connect(this.bus!)
     o.start(t)
@@ -264,23 +271,24 @@ class Lofi {
     this.noiseHit(t, 'highpass', 7000, gain, 0.045)
   }
 
-  /** Chiado e estalos do vinil, em loop, bem baixinho. */
+  /** Estalos do vinil, raros e abafados. Sem chiado contínuo: era o único som nos agudos e incomodava. */
   private startCrackle() {
     const ctx = this.ctx!
     const len = ctx.sampleRate * 4
     const buf = ctx.createBuffer(1, len, ctx.sampleRate)
     const data = buf.getChannelData(0)
     for (let i = 0; i < len; i++) {
-      data[i] = (Math.random() * 2 - 1) * 0.02 + (Math.random() < 0.0004 ? (Math.random() * 2 - 1) * 0.7 : 0)
+      data[i] = Math.random() < 0.00015 ? (Math.random() * 2 - 1) * 0.6 : 0
     }
     const src = ctx.createBufferSource()
     src.buffer = buf
     src.loop = true
     const filter = ctx.createBiquadFilter()
-    filter.type = 'highpass'
-    filter.frequency.value = 900
+    filter.type = 'bandpass'
+    filter.frequency.value = 2200
+    filter.Q.value = 0.8
     const g = ctx.createGain()
-    g.gain.value = 0.25
+    g.gain.value = 0.06
     src.connect(filter).connect(g).connect(this.master!)
     src.start()
     this.crackle = src
