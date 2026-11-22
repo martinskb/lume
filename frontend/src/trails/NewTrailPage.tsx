@@ -40,7 +40,7 @@ export function NewTrailPage() {
     setBusy(true)
     setError('')
     try {
-      navigate(`/trilha/${await action()}`)
+      navigate(`/trilha/${await action()}`, { replace: true }) // o formulário não fica atrás da trilha
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não deu para abrir a trilha.')
       setBusy(false)

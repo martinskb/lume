@@ -30,18 +30,13 @@ export function RankingPage() {
   }
 
   return (
-    <main className="shell narrow">
-      <div className="section-title">
-        <h1>Ranking da semana</h1>
-        {ranking?.me && <span className="pill highlight">{ranking.me.position}º lugar</span>}
-      </div>
+    <main className="shell narrow ranking-page">
+      <h1>Ranking da semana</h1>
 
       <Tip id="ranking">Pontos de segunda a domingo. Só seu apelido aparece, e participar é opcional.</Tip>
 
-      {me && !me.in_ranking && (
-        <button className="btn primary block" onClick={toggle} disabled={busy}>Participar do ranking</button>
-      )}
-      {toggleError && <p className="error" role="alert">{toggleError}</p>}
+      <div className="columns ranking-cols">
+      <div className="ranking-list">
 
       {error && (
         <div className="notice warn stack">
@@ -66,11 +61,29 @@ export function RankingPage() {
           ))}
         </ol>
       )}
-      {me?.in_ranking && (
-        <button className="btn ghost small" style={{ alignSelf: 'center' }} onClick={toggle} disabled={busy}>
-          Sair do ranking
-        </button>
-      )}
+      </div>
+
+      <aside className="ranking-side">
+        {ranking?.me && (
+          <div className="card ranking-me">
+            <span className="muted small">Sua semana</span>
+            <div className="row" style={{ alignItems: 'baseline', gap: 'var(--space-3)' }}>
+              <span className="stat" style={{ color: 'var(--accent-ink)' }}>{ranking.me.position}º</span>
+              <span className="muted">{ranking.me.week_points} pts</span>
+            </div>
+          </div>
+        )}
+        {me && !me.in_ranking && (
+          <button className="btn primary block" onClick={toggle} disabled={busy}>Participar do ranking</button>
+        )}
+        {toggleError && <p className="error" role="alert">{toggleError}</p>}
+        {me?.in_ranking && (
+          <button className="btn ghost small ranking-leave" style={{ alignSelf: 'center' }} onClick={toggle} disabled={busy}>
+            Sair do ranking
+          </button>
+        )}
+      </aside>
+      </div>
     </main>
   )
 }

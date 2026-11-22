@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { BackLink } from '../nav/useGo'
 import { post } from '../api/client'
 import type { AnswerResult, QuizQuestion } from '../api/types'
 import { useApi } from '../api/useApi'
@@ -30,7 +31,7 @@ export function QuizPage() {
           <p>{error}</p>
           <button className="btn" onClick={reload}>Tentar de novo</button>
         </div>
-        <Link className="btn ghost block" to={back}>Voltar à trilha</Link>
+        <BackLink className="btn ghost block" to={back}>Voltar à trilha</BackLink>
       </main>
     )
   }
@@ -41,7 +42,7 @@ export function QuizPage() {
       <main className="shell narrow">
         <h1>Exercícios</h1>
         <p className="muted">Ainda não há exercícios para esta parte.</p>
-        <Link className="btn block" to={back}>Voltar à trilha</Link>
+        <BackLink className="btn block" to={back}>Voltar à trilha</BackLink>
       </main>
     )
   }
@@ -55,7 +56,7 @@ export function QuizPage() {
           <p>{hits === questions.length ? 'Acertou tudo!' : 'Vale rever o que errou na aula.'}</p>
           <p className="muted small">Exercícios não valem pontos: é só para fixar.</p>
         </div>
-        <Link className="btn primary block" to={back}>Voltar à trilha</Link>
+        <BackLink className="btn primary block" to={back}>Voltar à trilha</BackLink>
       </main>
     )
   }
@@ -127,7 +128,7 @@ export function QuizPage() {
           {index + 1 === questions.length ? 'Ver resultado' : 'Próxima'}
         </button>
       )}
-      <Link className="btn ghost block" to={back}>Sair dos exercícios</Link>
+      <BackLink className="btn ghost block" to={back}>Sair dos exercícios</BackLink>
     </main>
   )
 }

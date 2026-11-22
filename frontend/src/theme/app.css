@@ -786,17 +786,18 @@ textarea { min-height: 96px; resize: vertical; }
 @media (min-width: 960px) {
   .shelf-page.shell { max-width: 1240px; }
   .home-layout { flex-direction: row; align-items: flex-start; gap: var(--space-7); }
-  .home-stage { display: flex; flex-direction: column; gap: var(--space-4); flex: 0 0 400px; position: sticky; top: 100px; }
+  .home-stage { display: flex; flex-direction: column; gap: var(--space-4); flex: 0 0 340px; position: sticky; top: 100px; }
   .home-shelves { flex: 1; }
   .shelf-title { font-size: 2.4rem; }
   .shelf.small .shelf-title { font-size: 1.6rem; }
   .shelf-row { margin: 0; }
   /* no computador as prateleiras quebram em fileiras; cada disco traz o seu pedaço de tábua */
-  .shelf-items { flex-wrap: wrap; overflow: visible; gap: 40px 28px; padding: 6px 4px 0; }
-  .shelf-item { position: relative; width: 178px; gap: 22px; }
+  /* 4 discos por fileira ao lado do toca-discos (antes cabiam 3 e sobrava espaço à direita) */
+  .shelf-items { flex-wrap: wrap; overflow: visible; gap: 40px 24px; padding: 6px 4px 0; }
+  .shelf-item { position: relative; width: 160px; gap: 22px; }
   .shelf.small .shelf-item { width: 120px; }
   .shelf-item::before {
-    content: ''; position: absolute; left: -14px; right: -14px; top: calc(178px * 0.94); height: 14px;
+    content: ''; position: absolute; left: -12px; right: -12px; top: calc(160px * 0.94); height: 14px;
     background: var(--wood); box-shadow: 0 8px 14px -6px rgba(0, 0, 0, 0.5); pointer-events: none;
   }
   .shelf.small .shelf-item::before { top: calc(120px * 0.94); height: 12px; }
@@ -985,4 +986,23 @@ textarea { min-height: 96px; resize: vertical; }
     100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); }
   }
   @keyframes led-pulse { 50% { box-shadow: 0 0 18px 4px var(--accent); } }
+}
+
+/* ---------- Computador: perfil e ranking em duas colunas ---------- */
+/* no celular continuam uma coluna só; o cartão "Sua semana" vem antes da lista */
+.ranking-side { display: contents; }
+.ranking-side > * { order: -1; }
+.ranking-side > .ranking-leave { order: 1; }
+.ranking-me { display: flex; flex-direction: column; gap: 2px; }
+@media (min-width: 960px) {
+  .profile-page.shell.narrow, .ranking-page.shell.narrow { max-width: 1120px; }
+  .profile-cols { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
+  .profile-side { position: sticky; top: 100px; }
+  .profile-side .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ranking-cols { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+  .ranking-side { display: flex; position: sticky; top: 100px; }
+  .ranking-side > *, .ranking-side > .ranking-leave { order: 0; }
+}
+@media (min-width: 960px) {
+  .profile-side .profile-head h1 { font-size: 1.5rem; overflow-wrap: anywhere; }
 }

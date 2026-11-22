@@ -1,4 +1,7 @@
+import type { ReactNode } from 'react'
 import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { pathOf } from './nav/stack'
+import { NavRecorder, useGo } from './nav/useGo'
 import { LoginPage } from './auth/LoginPage'
 import { Logo } from './brand/Logo'
 import { getNickname, getToken } from './auth/auth'
@@ -31,6 +34,31 @@ function Icon({ path }: { path: string }) {
   )
 }
 
+const TABS = ['/progresso', '/ranking', '/perfil']
+
+/**
+ * Aba da barra. Trocar de uma aba para outra não empilha (o voltar do celular sai da aba
+ * para onde a pessoa estava antes), e "Estante" volta até ela se ela já estiver atrás.
+ */
+function Tab({ to, className, end, children }: { to: string; className?: string; end?: boolean; children: ReactNode }) {
+  const { pathname } = useLocation()
+  const go = useGo()
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={className}
+      onClick={(e) => {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+        e.preventDefault()
+        go(to, { replace: TABS.includes(pathname) || pathname === pathOf(to) })
+      }}
+    >
+      {children}
+    </NavLink>
+  )
+}
+
 /** Cada troca de tela remonta o conteúdo, e ele entra com uma animação curta. */
 export function Page() {
   const { pathname } = useLocation()
@@ -48,13 +76,13 @@ function Private() {
       <nav className="nav" aria-label="Principal">
         <div className="nav-brand"><Logo size={32} /></div>
         <div className="nav-links">
-          <NavLink to="/" end><Icon path={ICONS.shelf} />Estante</NavLink>
-          <NavLink to="/progresso"><Icon path={ICONS.chart} />Progresso</NavLink>
+          <Tab to="/" end><Icon path={ICONS.shelf} />Estante</Tab>
+          <Tab to="/progresso"><Icon path={ICONS.chart} />Progresso</Tab>
           <Link className="nav-add" to="/?novo=1" aria-label="Novo tema">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
           </Link>
-          <NavLink to="/ranking"><Icon path={ICONS.trophy} />Ranking</NavLink>
-          <NavLink to="/perfil" className="nav-profile"><Avatar nickname={getNickname() ?? '?'} size={26} /><span>Perfil</span></NavLink>
+          <Tab to="/ranking"><Icon path={ICONS.trophy} />Ranking</Tab>
+          <Tab to="/perfil" className="nav-profile"><Avatar nickname={getNickname() ?? '?'} size={26} /><span>Perfil</span></Tab>
         </div>
       </nav>
       <div className="app-main">
@@ -70,6 +98,8 @@ function Private() {
 
 export default function App() {
   return (
+    <>
+    <NavRecorder />
     <Routes>
       <Route element={<Page />}>
         <Route path="/entrar" element={<LoginPage />} />
@@ -87,5 +117,6 @@ export default function App() {
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   )
 }

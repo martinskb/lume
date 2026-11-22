@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { BackLink } from '../nav/useGo'
 import { ConfirmButton } from '../ui/ConfirmButton'
 import { Turntable } from '../vinyl/Vinyl'
 import { GOAL_PRESETS, parseGoal } from './goal'
@@ -150,8 +151,8 @@ export function OtherSession({ timer, onOpen }: { timer: TimerState; onOpen?: ()
     )
   }
   return (
-    <Link className="btn soft block" to={backOf(timer)}>
+    <BackLink push className="btn soft block" to={backOf(timer)}>
       <span className="truncate">Sessão em andamento: {timer.topic}</span>
-    </Link>
+    </BackLink>
   )
 }

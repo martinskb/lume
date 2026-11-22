@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+import { BackLink } from '../nav/useGo'
 import { Vinyl } from '../vinyl/Vinyl'
 import { activeSeconds, backOf, loadTimer } from './timerState'
 import { clock } from './useSession'
@@ -22,13 +23,13 @@ export function MiniTimer() {
   const met = seconds >= timer.goalMinutes * 60
   return (
     // Na Estante do computador o toca-discos já mostra a sessão: a faixa some lá (on-shelf).
-    <Link className={`mini-timer${pathname === '/' ? ' on-shelf' : ''}`} to={backOf(timer)}>
+    <BackLink push className={`mini-timer${pathname === '/' ? ' on-shelf' : ''}`} to={backOf(timer)}>
       <Vinyl palette={timer.palette ?? 'noite'} level={timer.level} spinning={!paused} className="mini-disc" />
       <span className="stack grow" style={{ gap: 0, minWidth: 0 }}>
         <span className={`mini-label${met ? ' lit' : ''}`}>{paused ? 'Pausado' : met ? 'Meta cumprida!' : 'Tocando agora'}</span>
         <strong className="truncate">{timer.topic}</strong>
       </span>
       <strong className="mini-clock">{clock(seconds)}</strong>
-    </Link>
+    </BackLink>
   )
 }

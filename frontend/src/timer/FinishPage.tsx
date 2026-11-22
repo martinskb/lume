@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
+import { useGo } from '../nav/useGo'
 import { post } from '../api/client'
 import type { Conclusion } from '../api/types'
 import { ConfirmButton } from '../ui/ConfirmButton'
@@ -15,7 +16,7 @@ const backLabel = (back: string) =>
 
 /** Resumo da sessão: anotação opcional, salvar e comemorar. */
 export function FinishPage() {
-  const navigate = useNavigate()
+  const go = useGo()
   // Congela o tempo ao abrir o resumo (quem vem do botão Concluir já chega pausado).
   const [timer, setTimerState] = useState<TimerState | null>(() => {
     const t = loadTimer()
@@ -89,7 +90,7 @@ export function FinishPage() {
             disabled={busy}
             onClick={() => {
               saveTimer(resume(frozen, Date.now()))
-              navigate(home)
+              go(home)
             }}
           >
             Continuar estudando
@@ -102,7 +103,7 @@ export function FinishPage() {
           disabled={busy}
           onConfirm={() => {
             saveTimer(null)
-            navigate(home, { replace: true })
+            go(home, { replace: true })
           }}
         />
       </div>

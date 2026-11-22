@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { BackLink } from '../nav/useGo'
 import type { Conclusion } from '../api/types'
 import { Cover } from '../topics/Cover'
 import type { PaletteName } from '../topics/cover'
@@ -84,8 +84,8 @@ export function Celebration({ result, minutes, backTo, backLabel, disc }: Props)
       {result.topic && <TopicDiscCard light={result.topic} palette={disc.palette} />}
 
       <div className="stack" style={{ gap: 'var(--space-2)', marginTop: 'auto' }}>
-        <Link className="btn primary block" to={backTo}>{backLabel}</Link>
-        {backTo !== '/' && <Link className="btn ghost block" to="/">Ir para a estante</Link>}
+        <BackLink className="btn primary block" to={backTo}>{backLabel}</BackLink>
+        {backTo !== '/' && <BackLink className="btn ghost block" to="/">Ir para a estante</BackLink>}
       </div>
     </main>
   )

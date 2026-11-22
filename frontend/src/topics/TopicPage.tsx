@@ -1,5 +1,6 @@
 import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { BackLink, useGo } from '../nav/useGo'
 import { api, post } from '../api/client'
 import type { Topic, TopicDetail } from '../api/types'
 import { useApi } from '../api/useApi'
@@ -20,7 +21,7 @@ const dayLabel = (iso: string) => {
 
 export function TopicPage() {
   const { id } = useParams()
-  const navigate = useNavigate()
+  const go = useGo()
   const { data: topic, error, setData } = useApi<TopicDetail>(`/topics/${id}`)
   const [editing, setEditing] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -53,7 +54,7 @@ export function TopicPage() {
       <main className="shell narrow">
         <p className="error" role="alert">{error}</p>
         {session.mine && <Link className="btn primary block" to="/concluir">Ver sessão em andamento</Link>}
-        <Link className="btn block" to="/">Voltar à estante</Link>
+        <BackLink className="btn block" to="/">Voltar à estante</BackLink>
       </main>
     )
   }
@@ -83,7 +84,7 @@ export function TopicPage() {
       <main className="shell narrow focus-page scene">
         <div className="scene-bg" aria-hidden="true" />
         <div className="focus-top">
-          <Link className="muted small back-link" to="/">‹ Estante</Link>
+          <BackLink className="muted small back-link" to="/">‹ Estante</BackLink>
           <AssistantPanel topic={topic.title} />
         </div>
         <RunningSession session={session} caption={topic.title} />
@@ -93,7 +94,7 @@ export function TopicPage() {
 
   return (
     <main className="shell">
-      <Link className="muted small back-link" to="/">‹ Estante</Link>
+      <BackLink className="muted small back-link" to="/">‹ Estante</BackLink>
 
       <section className="topic-hero">
         <div className="cover-wrap">
@@ -163,7 +164,7 @@ export function TopicPage() {
         <CoverEditor
           topic={topic}
           onSaved={(t) => setData({ ...topic, ...t })}
-          onDeleted={() => navigate('/', { replace: true })}
+          onDeleted={() => go('/', { replace: true })}
           onClose={() => setEditing(false)}
         />
       )}

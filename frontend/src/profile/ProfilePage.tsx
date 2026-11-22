@@ -60,7 +60,9 @@ export function ProfilePage() {
   const since = stats ? new Date(`${stats.member_since}T12:00:00Z`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : ''
 
   return (
-    <main className="shell narrow">
+    <main className="shell narrow profile-page">
+      <div className="columns profile-cols">
+      <div className="profile-side">
       <section className="profile-head">
         <Avatar nickname={me.nickname} size={88} />
         <div className="stack" style={{ gap: 'var(--space-1)' }}>
@@ -80,7 +82,9 @@ export function ProfilePage() {
           </div>
         </section>
       )}
+      </div>
 
+      <div>
       <form className="card stack" style={{ gap: 'var(--space-3)' }} onSubmit={rename}>
         <label>
           Apelido
@@ -126,6 +130,8 @@ export function ProfilePage() {
       </section>
 
       <button className="btn ghost block" onClick={leave}>Sair da conta</button>
+      </div>
+      </div>
     </main>
   )
 }
