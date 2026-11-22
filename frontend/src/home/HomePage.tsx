@@ -111,7 +111,7 @@ export function HomePage() {
       )}
 
       <div className="home-layout">
-        <Stage loaded={loaded} flown={flown} />
+        <Stage loaded={loaded} flown={flown} hasDiscs={Boolean(topics && topics.length > 0)} />
 
         <div className="home-shelves">
           <section className="shelf" aria-label="Aprendendo">
@@ -244,7 +244,7 @@ function ShelfItem({ topic, onMenu, onPick, label, children }: ShelfItemProps) {
  * No computador: a mesa com o toca-discos ao lado da estante. Vazio até a pessoa escolher
  * um disco (ele voa da capa até o prato); com sessão em andamento, mostra o disco tocando.
  */
-function Stage({ loaded, flown }: { loaded: Topic | null; flown: boolean }) {
+function Stage({ loaded, flown, hasDiscs }: { loaded: Topic | null; flown: boolean; hasDiscs: boolean }) {
   const navigate = useNavigate()
   const [goal, setGoal] = useState(25)
   const [now, setNow] = useState(() => Date.now())
@@ -295,7 +295,7 @@ function Stage({ loaded, flown }: { loaded: Topic | null; flown: boolean }) {
           <Link className="muted small stage-open" to={`/tema/${loaded.id}`}>Abrir disco ›</Link>
         </div>
       ) : (
-        <p className="muted small stage-hint">Escolha um disco na estante</p>
+        <p className="muted small stage-hint">{hasDiscs ? 'Escolha um disco na estante' : 'Seu primeiro disco toca aqui'}</p>
       )}
     </aside>
   )
