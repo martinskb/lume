@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { BackLink } from '../nav/useGo'
 import { ApiError, api, post } from '../api/client'
 import type { CatalogItem, Topic, Trail, TrailPart } from '../api/types'
 import { useApi } from '../api/useApi'
@@ -14,7 +15,10 @@ import { useWide } from '../ui/useWide'
 const STEPS = ['dividindo o tema', 'buscando aulas', 'criando exercícios']
 const STEP_LABEL = ['Dividindo o tema em partes', 'Buscando aulas no YouTube', 'Criando exercícios']
 const POLL_MS = 2000
-const GIVE_UP_MS = 120_000
+// O servidor só considera a geração travada depois de 10 min (STALE_AFTER): antes disso,
+// "demorando" não é falha. Na demo, uma trilha levou 5,5 min e a tela desistiu aos 2.
+const GIVE_UP_MS = 11 * 60_000
+const SLOW_MS = 60_000
 
 function duration(seconds: number): string {
   if (!seconds) return ''
@@ -27,12 +31,14 @@ export function TrailPage() {
   const [error, setError] = useState('')
   const [timedOut, setTimedOut] = useState(false)
   const [attempt, setAttempt] = useState(0)
+  const [slow, setSlow] = useState(false)
 
   useEffect(() => {
     let stop = false
     let timer: ReturnType<typeof setTimeout>
     const started = Date.now()
     setTimedOut(false)
+    setSlow(false)
 
     async function load() {
       try {
@@ -49,6 +55,7 @@ export function TrailPage() {
         }
         // falha de rede no meio da geração: continua tentando até o limite
       }
+      if (Date.now() - started > SLOW_MS) setSlow(true)
       if (Date.now() - started > GIVE_UP_MS) setTimedOut(true)
       else timer = setTimeout(load, POLL_MS)
     }
@@ -64,7 +71,7 @@ export function TrailPage() {
     return (
       <main className="shell">
         <p className="error" role="alert">{error}</p>
-        <Link className="btn block" to="/">Voltar ao início</Link>
+        <BackLink className="btn block" to="/">Voltar ao início</BackLink>
       </main>
     )
   }
@@ -82,17 +89,21 @@ export function TrailPage() {
       />
     )
   }
-  if (trail.status === 'generating') return <Generating trail={trail} />
+  if (trail.status === 'generating') return <Generating trail={trail} slow={slow} />
   return <Ready trail={trail} onChange={setTrail} />
 }
 
-function Generating({ trail }: { trail: Trail }) {
+function Generating({ trail, slow }: { trail: Trail; slow: boolean }) {
   const current = Math.max(0, STEPS.indexOf(trail.step))
   return (
     <main className="shell narrow">
       <div className="stack">
         <h1>{trail.title}</h1>
-        <p className="muted">Montando sua trilha. Costuma levar menos de um minuto.</p>
+        <p className="muted">
+          {slow
+            ? 'Ainda montando. Pode sair: o disco aparece na estante quando ficar pronto.'
+            : 'Montando sua trilha. Costuma levar menos de um minuto.'}
+        </p>
       </div>
       <ol className="card list" aria-live="polite">
         {STEP_LABEL.map((label, i) => (
@@ -164,7 +175,7 @@ function Failed({ trail, timedOut, onRetry }: { trail: Trail; timedOut: boolean;
               style={{ justifyContent: 'flex-start' }}
               onClick={async () => {
                 await post(`/trails/${c.trail_id}/start`).catch(() => {})
-                navigate(`/trilha/${c.trail_id}`)
+                navigate(`/trilha/${c.trail_id}`, { replace: true })
               }}
             >
               {c.title}
@@ -192,6 +203,11 @@ function Ready({ trail, onChange }: { trail: Trail; onChange: (t: Trail) => void
 
   const header = (
     <div className="page-head">
+      {topics && (
+        <BackLink className="muted small back-link" to={owner ? `/tema/${owner.id}` : '/'}>
+          ‹ {owner ? 'Disco' : 'Estante'}
+        </BackLink>
+      )}
       <span className="muted small" style={{ fontWeight: 700, letterSpacing: '0.06em' }}>LADO A · TRILHA</span>
       <div className="row spread" style={{ alignItems: 'center' }}>
         <h1>{trail.title}</h1>

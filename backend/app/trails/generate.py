@@ -1,6 +1,7 @@
 """Geração de trilha em segundo plano: partes (IA) → vídeos (YouTube) → exercícios (IA)."""
 import time
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
 
 from sqlalchemy import delete, select, update
@@ -14,6 +15,7 @@ from app.models import Exercise, Part, Trail, Video
 
 VIDEOS_PER_PART = 3
 QUESTIONS_PER_PART = 4
+QUIZ_WORKERS = 6  # uma trilha tem até 6 partes: todas de uma vez
 STALE_AFTER = timedelta(minutes=10)
 RETRY_WAIT_S = 4  # o plano grátis do Gemini limita chamadas por minuto: espera antes de repetir
 
@@ -116,14 +118,21 @@ def generate_trail(
             set_step(STEP_QUIZ)
 
             def quiz_all() -> None:
-                for part in parts:
+                # Em fila, 5 capítulos levavam minutos: pede todos ao mesmo tempo.
+                # As threads só falam com a IA; quem grava no banco é esta thread.
+                title, wanted = trail.title, [(p.id, p.title) for p in parts]
+
+                def one(part_title: str) -> list[QuizItem] | None:
                     try:
-                        items = _retry_once(
-                            lambda: ai.topic_quiz(trail.title, part.title, QUESTIONS_PER_PART)
-                        )
+                        return _retry_once(lambda: ai.topic_quiz(title, part_title, QUESTIONS_PER_PART))
                     except AIError:
-                        continue  # a parte fica sem exercícios; a trilha continua valendo
-                    _add_exercises(db, part.id, items)
+                        return None  # a parte fica sem exercícios; a trilha continua valendo
+
+                with ThreadPoolExecutor(max_workers=QUIZ_WORKERS) as pool:
+                    results = list(pool.map(one, [t for _, t in wanted]))
+                for (part_id, _), items in zip(wanted, results, strict=True):
+                    if items:
+                        _add_exercises(db, part_id, items)
 
             _timed(db, "trail_quiz", trail_id, quiz_all)
             trail.status, trail.step, trail.error = "ready", "", None

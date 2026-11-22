@@ -304,7 +304,8 @@ class GeminiClient:
             f"Crie {n} questões de múltipla escolha para fixar o assunto abaixo.\n"
             f"Tema: {fence('tema', topic)}\nParte: {fence('parte', part)}\n{QUIZ_RULES}"
         )
-        return parse_quiz(self._generate(prompt, schema=QUIZ_SCHEMA, timeout_s=60))[:n]
+        # Raciocínio baixo: com o padrão, cada parte levava ~1 min (medido na demo de 16/11).
+        return parse_quiz(self._generate(prompt, schema=QUIZ_SCHEMA, timeout_s=60, thinking="low"))[:n]
 
     def video_quiz(self, youtube_url: str, part: str, n: int) -> list[QuizItem]:
         types = self._genai.types

@@ -187,3 +187,22 @@ def test_video_analysis_holds_no_db_session_during_ai_call(session_factory, trai
     analyze_videos(trail_id, ai, factory)
     assert seen == [0, 0, 0, 0]  # a chamada lenta à IA não segura conexão do banco
     assert sum(v.analysis == "done" for v in load(session_factory, trail_id)[2]) == 4
+
+
+def test_part_quizzes_are_requested_in_parallel(session_factory, trail_id, yt):
+    # Na demo, 5 capítulos em fila levaram 5,5 min e a tela desistiu antes de a trilha ficar pronta.
+    import threading
+
+    together = threading.Barrier(2, timeout=5)
+
+    class ParallelAI(FakeAI):
+        def topic_quiz(self, topic, part, n):
+            together.wait()  # só passa se outro capítulo estiver sendo pedido ao mesmo tempo
+            return super().topic_quiz(topic, part, n)
+
+    generate_trail(trail_id, ParallelAI(), yt, session_factory)
+    trail, parts, _, exercises = load(session_factory, trail_id)
+    assert trail.status == "ready"
+    assert {e.part_id for e in exercises} == {p.id for p in parts}
+    for part in parts:  # cada capítulo recebe as próprias questões
+        assert all(e.question.startswith(f"assunto {part.title}") for e in exercises if e.part_id == part.id)
