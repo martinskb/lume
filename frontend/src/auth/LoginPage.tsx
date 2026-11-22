@@ -44,14 +44,11 @@ export function LoginPage() {
         </div>
         <div className="login-copy">
           <h2>Um disco de cada vez.</h2>
-          <p>Diga o que quer aprender. O Lume monta o caminho.</p>
+          <p>O caminho já existe. O Lume ilumina.</p>
         </div>
       </section>
       <div className="login-form">
-        <div className="stack" style={{ gap: 'var(--space-2)' }}>
-          <h1>Entrar</h1>
-          <p className="muted">Apelido novo cria a conta na hora.</p>
-        </div>
+        <h1>Entrar</h1>
         <form className="stack" style={{ gap: 'var(--space-4)' }} onSubmit={submit}>
           <label>
             Apelido
