@@ -17,7 +17,8 @@ from app.auth import hash_pin
 from app.models import StudySession, User
 from app.study.rules import goal_met, points_for_session, study_day
 
-DEMO_NICKNAMES = ["bia_estuda", "joao_ads", "carol_calc", "pedro_dev", "lari_enem", "rafa_sql"]
+# apelidos com cara de gente de verdade (sem "_estuda", "_enem"…)
+DEMO_NICKNAMES = ["Beatriz", "JoaoPedro", "Mariana", "Lucas", "Carolina", "Rafael"]
 TOPICS = ["Cálculo", "Lógica de programação", "Redação ENEM", "SQL básico", "Leis de Newton"]
 DAYS_BACK = 10
 
