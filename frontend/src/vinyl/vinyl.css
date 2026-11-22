@@ -73,3 +73,4 @@
   to { transform: none; opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) { .turntable.arriving .tt-disc { animation: none; } }
+.tt-slot { aspect-ratio: 1; border-radius: 50%; pointer-events: none; }

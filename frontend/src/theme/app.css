@@ -1006,3 +1006,16 @@ textarea { min-height: 96px; resize: vertical; }
 @media (min-width: 960px) {
   .profile-side .profile-head h1 { font-size: 1.5rem; overflow-wrap: anywhere; }
 }
+
+/* ---------- Estante no computador: a mesa com o toca-discos ---------- */
+@media (min-width: 960px) {
+  .home-deck.stage { height: 330px; margin: 0 -24px; perspective: 1100px; }
+  .home-deck .stage-table { width: 150%; height: 52%; }
+  .home-deck .stage-deck { width: 290px; bottom: 14%; }
+  .home-deck .stage-deck .turntable {
+    box-shadow: 0 14px 0 #0b0907, 0 36px 46px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+  .stage-loaded { display: flex; flex-direction: column; gap: var(--space-3); animation: rise 0.4s var(--ease) both; }
+  .stage-open { align-self: flex-start; text-decoration: none; font-weight: 600; }
+  .stage-hint { text-align: center; margin: 0; }
+}

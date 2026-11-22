@@ -1,8 +1,10 @@
 import { useSyncExternalStore } from 'react'
 import { deviceStore, keepOnDevice } from './deviceStore'
+import { lofi } from './lofi'
 
 // Músicas para estudar: arquivos da própria pessoa, guardados só neste aparelho.
 // Tocam baixinho enquanto o disco gira e pausam junto com ele.
+// Sem músicas no aparelho, toca o lofi gerado pelo próprio app (local/lofi.ts).
 
 export type Track = { id: number; name: string; size: number; blob: Blob; addedAt: number }
 export type TrackInfo = Omit<Track, 'blob'>
@@ -189,7 +191,13 @@ class Player {
   }
 
   private play() {
-    if (!state.on || state.tracks.length === 0) return
+    if (!state.on) return
+    if (state.tracks.length === 0) {
+      lofi.start(state.volume)
+      mediaState('playing')
+      return
+    }
+    lofi.stop() // a pessoa acabou de adicionar músicas: as dela assumem
     const a = this.el()
     if (!a.getAttribute('src')) {
       void this.prepare().then((ok) => ok && this.wantPlaying && this.play())
@@ -206,7 +214,9 @@ class Player {
 
   /** Chamado ao mudar a lista ou ligar a música com o disco já girando. */
   refresh() {
-    if (this.wantPlaying && (!this.audio || this.audio.paused)) this.play()
+    if (!this.wantPlaying) return
+    lofi.resume()
+    if (state.tracks.length === 0 ? !lofi.playing : !this.audio || this.audio.paused) this.play()
   }
 
   /** Tira do tocador a música que foi apagada. */
@@ -226,6 +236,10 @@ class Player {
 
   /** Pausa o som sem esquecer que o disco está girando. */
   pause() {
+    if (lofi.playing) {
+      lofi.stop()
+      mediaState('paused')
+    }
     if (!this.audio || this.audio.paused) return
     const a = this.audio
     this.ramp(0, () => {
@@ -235,6 +249,7 @@ class Player {
   }
 
   applyVolume() {
+    lofi.setVolume(state.volume)
     if (this.audio && !this.audio.paused) this.audio.volume = state.volume
   }
 

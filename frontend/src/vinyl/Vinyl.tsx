@@ -25,21 +25,34 @@ export function Vinyl({ palette, level, spinning, className = '' }: DiscProps) {
   )
 }
 
-type TurntableProps = { palette: PaletteName; level?: string; playing: boolean; progress: number; className?: string }
+type TurntableProps = {
+  palette: PaletteName
+  level?: string
+  playing: boolean
+  progress: number
+  className?: string
+  /** prato sem disco (estante do computador, antes de escolher um) */
+  empty?: boolean
+  /** false: o disco já chegou voando da estante, sem a descida padrão */
+  arrive?: boolean
+}
 
 /** Toca-discos: o disco gira enquanto o cronômetro roda; o braço avança pelos sulcos até a meta. */
-export function Turntable({ palette, level, playing, progress, className = '' }: TurntableProps) {
+export function Turntable({ palette, level, playing, progress, className = '', empty = false, arrive = true }: TurntableProps) {
   // Ao aparecer, o disco desce no prato e só então o braço vai até ele.
-  const [settled, setSettled] = useState(false)
+  const [settled, setSettled] = useState(!arrive)
   useEffect(() => {
+    if (!arrive) return
     const id = setTimeout(() => setSettled(true), 700)
     return () => clearTimeout(id)
-  }, [])
+  }, [arrive])
   const angle = playing && settled ? armAngle(progress, true) : ARM_REST
   return (
     <div className={`turntable${settled ? '' : ' arriving'} ${className}`} aria-hidden="true">
       <span className="tt-platter" />
-      <Vinyl palette={palette} level={level} spinning={playing} className="tt-disc" />
+      {/* marca onde o disco fica: é o alvo do disco que voa da estante */}
+      <span className="tt-disc tt-slot" data-disc-slot />
+      {!empty && <Vinyl palette={palette} level={level} spinning={playing} className="tt-disc" />}
       <span className="tt-pivot" />
       <span className="tt-arm" style={{ transform: `rotate(${angle}deg)` }}>
         <i className="tt-rod" />

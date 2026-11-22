@@ -1,4 +1,4 @@
-import { type FormEvent, type ReactNode, useEffect, useState } from 'react'
+import { type FormEvent, type ReactNode, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { post } from '../api/client'
 import type { Progress, Topic } from '../api/types'
@@ -15,6 +15,9 @@ import { Turntable } from '../vinyl/Vinyl'
 import { useLongPress } from '../ui/useLongPress'
 import { weekStrip } from './homeModel'
 import { TopicActions } from './TopicActions'
+import { flyDisc } from './discFlight'
+import { GoalChips } from '../timer/Session'
+import { useWide } from '../ui/useWide'
 
 const lastLabel = (iso: string | null) => {
   if (!iso) return 'ainda sem sessões'
@@ -53,6 +56,26 @@ export function HomePage() {
   }
 
   const empty = learning !== null && learning.length === 0
+
+  // Computador sem sessão tocando: clicar num disco o põe no toca-discos ao lado.
+  const wide = useWide()
+  const pickable = wide && loadTimer() === null
+  const [loaded, setLoaded] = useState<Topic | null>(null)
+  const [flown, setFlown] = useState(false)
+  const flying = useRef(false)
+  async function pick(t: Topic, disc: HTMLElement) {
+    const slot = document.querySelector<HTMLElement>('.home-stage [data-disc-slot]')
+    if (!slot) return navigate(`/tema/${t.id}`)
+    if (flying.current || loaded?.id === t.id) return
+    flying.current = true
+    const land = await flyDisc(disc, slot)
+    setFlown(true)
+    setLoaded(t)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      land()
+      flying.current = false
+    }))
+  }
   const showForm = adding || wantsNew || empty
 
   return (
@@ -88,7 +111,7 @@ export function HomePage() {
       )}
 
       <div className="home-layout">
-        <Stage topics={learning} />
+        <Stage loaded={loaded} flown={flown} />
 
         <div className="home-shelves">
           <section className="shelf" aria-label="Aprendendo">
@@ -132,7 +155,7 @@ export function HomePage() {
               <div className="shelf-row">
                 <div className="shelf-items">
                   {learning.map((t) => (
-                    <ShelfItem key={t.id} topic={t} onMenu={setMenu}>
+                    <ShelfItem key={t.id} topic={t} onMenu={setMenu} onPick={pickable ? pick : undefined}>
                       <span className="shelf-meta">
                         <strong>{t.title}</strong>
                         <span>{formatHours(t.total_seconds)} · {lastLabel(t.last_day)}</span>
@@ -151,7 +174,7 @@ export function HomePage() {
               <div className="shelf-row">
                 <div className="shelf-items">
                   {done.map((t) => (
-                    <ShelfItem key={t.id} topic={t} onMenu={setMenu} label={`${t.title}, disco ${t.level.name.toLowerCase()}`} />
+                    <ShelfItem key={t.id} topic={t} onMenu={setMenu} onPick={pickable ? pick : undefined} label={`${t.title}, disco ${t.level.name.toLowerCase()}`} />
                   ))}
                 </div>
                 <i className="shelf-plank" aria-hidden="true" />
@@ -186,18 +209,44 @@ export function HomePage() {
 }
 
 /** Capa na prateleira: toque abre o tema; segurar (ou botão direito) abre o menu do álbum. */
-function ShelfItem({ topic, onMenu, label, children }: { topic: Topic; onMenu: (t: Topic) => void; label?: string; children?: ReactNode }) {
+type ShelfItemProps = {
+  topic: Topic
+  onMenu: (t: Topic) => void
+  /** computador: o clique põe o disco no toca-discos em vez de abrir o tema */
+  onPick?: (t: Topic, disc: HTMLElement) => void
+  label?: string
+  children?: ReactNode
+}
+
+function ShelfItem({ topic, onMenu, onPick, label, children }: ShelfItemProps) {
   const press = useLongPress(() => onMenu(topic))
   return (
-    <Link className="shelf-item" to={`/tema/${topic.id}`} aria-label={label} draggable={false} {...press}>
+    <Link
+      className="shelf-item"
+      to={`/tema/${topic.id}`}
+      aria-label={label}
+      draggable={false}
+      {...press}
+      onClick={(e) => {
+        const disc = e.currentTarget.querySelector<HTMLElement>('.sleeve-disc')
+        if (!onPick || !disc || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+        e.preventDefault()
+        onPick(topic, disc)
+      }}
+    >
       <Sleeve topic={topic} />
       {children}
     </Link>
   )
 }
 
-/** No computador: o toca-discos à esquerda da estante, tocando a sessão em andamento. */
-function Stage({ topics }: { topics: Topic[] | null }) {
+/**
+ * No computador: a mesa com o toca-discos ao lado da estante. Vazio até a pessoa escolher
+ * um disco (ele voa da capa até o prato); com sessão em andamento, mostra o disco tocando.
+ */
+function Stage({ loaded, flown }: { loaded: Topic | null; flown: boolean }) {
+  const navigate = useNavigate()
+  const [goal, setGoal] = useState(25)
   const [now, setNow] = useState(() => Date.now())
   const timer = loadTimer()
   useEffect(() => {
@@ -206,16 +255,20 @@ function Stage({ topics }: { topics: Topic[] | null }) {
     return () => clearInterval(id)
   }, [timer])
 
-  const fallback = topics?.[0]
   const playing = timer !== null && timer.pausedAt === null
   const seconds = timer ? activeSeconds(timer, now) : 0
-  const progress = timer ? seconds / (timer.goalMinutes * 60) : 0
-  const palette = timer?.palette ?? fallback?.palette ?? 'noite'
-  const level = timer?.level ?? fallback?.level.name
+  const deck = timer
+    ? { key: `t${timer.clientId}`, palette: timer.palette ?? 'noite', level: timer.level, playing, progress: seconds / (timer.goalMinutes * 60), empty: false, arrive: true }
+    : { key: loaded ? `d${loaded.id}` : 'vazio', palette: loaded?.palette ?? 'noite', level: loaded?.level.name, playing: false, progress: 0, empty: !loaded, arrive: !flown }
 
   return (
     <aside className="home-stage" aria-label="Toca-discos">
-      <Turntable palette={palette} level={level} playing={playing} progress={progress} />
+      <div className="stage home-deck" aria-hidden="true">
+        <div className="stage-table" />
+        <div className="stage-deck">
+          <Turntable {...deck} />
+        </div>
+      </div>
       {timer ? (
         <Link className="now-playing" to={backOf(timer)}>
           <span className="stack" style={{ gap: 2, minWidth: 0 }}>
@@ -224,16 +277,25 @@ function Stage({ topics }: { topics: Topic[] | null }) {
           </span>
           <strong className="now-clock">{clock(seconds)}</strong>
         </Link>
+      ) : loaded ? (
+        <div className="stage-loaded" key={loaded.id}>
+          <div className="play-row">
+            <button
+              className="play"
+              onClick={() => navigate(`/tema/${loaded.id}?tocar=1&meta=${goal}`)}
+              aria-label={`Tocar ${goal} minutos de ${loaded.title}`}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5 19.5 12 7 19.5Z" fill="currentColor" /></svg>
+            </button>
+            <div className="stack" style={{ gap: 'var(--space-2)', minWidth: 0 }}>
+              <strong className="truncate">{loaded.title}</strong>
+              <GoalChips value={goal} onChange={setGoal} />
+            </div>
+          </div>
+          <Link className="muted small stage-open" to={`/tema/${loaded.id}`}>Abrir disco ›</Link>
+        </div>
       ) : (
-        fallback && (
-          <Link className="now-playing" to={`/tema/${fallback.id}`}>
-            <span className="stack" style={{ gap: 2, minWidth: 0 }}>
-              <span className="muted small">Continuar</span>
-              <strong className="truncate">{fallback.title}</strong>
-            </span>
-            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5 19.5 12 7 19.5Z" fill="currentColor" /></svg>
-          </Link>
-        )
+        <p className="muted small stage-hint">Escolha um disco na estante</p>
       )}
     </aside>
   )

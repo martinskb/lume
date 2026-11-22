@@ -45,9 +45,10 @@ export function TopicPage() {
   const { start, mine, other } = session
   useEffect(() => {
     if (!autoplay || !topic) return
-    if (!mine && !other) start(25)
+    const meta = Number(params.get('meta'))
+    if (!mine && !other) start(meta >= 1 && meta <= 600 ? meta : 25) // meta escolhida no toca-discos da estante
     setParams({}, { replace: true })
-  }, [autoplay, topic, mine, other, start, setParams])
+  }, [autoplay, topic, mine, other, start, params, setParams])
 
   if (error) {
     return (

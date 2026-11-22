@@ -29,12 +29,10 @@ export function StudyMusicSection() {
     <section className="card stack music-card" style={{ gap: 'var(--space-4)' }} aria-label="Músicas para estudar">
       <div className="stack" style={{ gap: 2 }}>
         <h2>Músicas para estudar</h2>
-        <p className="muted small">Tocam baixinho enquanto o disco gira. Músicas calmas, sem letra, ajudam a focar. Ficam só neste aparelho.</p>
+        <p className="muted small">Tocam baixinho enquanto o disco gira. Sem músicas suas, toca o lofi do Lume. As suas ficam só neste aparelho.</p>
       </div>
 
-      {tracks.length > 0 && (
-        <>
-          <label className="switch-row">
+      <label className="switch-row">
             <span>Tocar enquanto estudo</span>
             <input type="checkbox" role="switch" className="switch" checked={on} onChange={(e) => setMusicOn(e.target.checked)} />
           </label>
@@ -51,6 +49,7 @@ export function StudyMusicSection() {
               aria-label="Volume das músicas"
             />
           </label>
+      {tracks.length > 0 && (
           <ul className="track-list">
             {tracks.map((t) => (
               <li key={t.id}>
@@ -65,7 +64,6 @@ export function StudyMusicSection() {
               </li>
             ))}
           </ul>
-        </>
       )}
 
       {note && <p className="muted small" role="status">{note}</p>}
