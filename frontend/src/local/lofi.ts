@@ -71,9 +71,17 @@ class Lofi {
     const ctx = new Ctx()
     this.ctx = ctx
 
+    // compressor no fim: deixa o som cheio sem estourar nos picos do bumbo
+    const glue = ctx.createDynamicsCompressor()
+    glue.threshold.value = -18
+    glue.knee.value = 12
+    glue.ratio.value = 12
+    glue.attack.value = 0.003
+    glue.release.value = 0.25
+    glue.connect(ctx.destination)
     this.master = ctx.createGain()
     this.master.gain.value = 0
-    this.master.connect(ctx.destination)
+    this.master.connect(glue)
     // tudo passa por um filtro passa-baixa: é o que dá o som "abafado" de fita
     const tape = ctx.createBiquadFilter()
     tape.type = 'lowpass'
@@ -81,7 +89,7 @@ class Lofi {
     tape.Q.value = 0.6
     tape.connect(this.master)
     this.bus = ctx.createGain()
-    this.bus.gain.value = 0.55
+    this.bus.gain.value = 1
     this.bus.connect(tape)
 
     // fita oscilando de leve: um LFO lento mexe na afinação do piano
@@ -136,7 +144,8 @@ class Lofi {
   }
 
   private gainFor(volume: number) {
-    return Math.max(0, Math.min(1, volume)) * 1.4
+    // calibrado para soar como uma música própria no mesmo volume (medido: ~-22 dB em 25%)
+    return Math.max(0, Math.min(1, volume)) * 4.5
   }
 
   private fadeTo(value: number, seconds: number) {

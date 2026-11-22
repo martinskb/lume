@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react'
-import { addTracks, removeTrack, setMusicOn, setMusicVolume, useStudyMusic } from '../local/studyMusic'
+import { useEffect, useRef, useState } from 'react'
+import { addTracks, player, previewLofi, removeTrack, setMusicOn, setMusicVolume, useStudyMusic } from '../local/studyMusic'
 
 const mb = (bytes: number) =>
   bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1).replace('.', ',')} MB`
@@ -10,6 +10,8 @@ export function StudyMusicSection() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState('')
+  const [previewing, setPreviewing] = useState(false)
+  useEffect(() => () => previewLofi(false), []) // saiu do Perfil: para a prévia
 
   async function add(list: FileList | null) {
     if (!list || list.length === 0) return
@@ -49,6 +51,18 @@ export function StudyMusicSection() {
               aria-label="Volume das músicas"
             />
           </label>
+      {tracks.length === 0 && !player.active && (
+        <button
+          className="btn ghost small"
+          style={{ alignSelf: 'flex-start' }}
+          onClick={() => {
+            previewLofi(!previewing)
+            setPreviewing(!previewing)
+          }}
+        >
+          {previewing ? '■ Parar' : '▶ Ouvir o lofi'}
+        </button>
+      )}
       {tracks.length > 0 && (
           <ul className="track-list">
             {tracks.map((t) => (

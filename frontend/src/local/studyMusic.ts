@@ -182,6 +182,11 @@ class Player {
     if (await this.prepare()) this.play()
   }
 
+  /** true enquanto o disco está girando (a música deve tocar). */
+  get active() {
+    return this.wantPlaying
+  }
+
   /** Liga/desliga junto com o disco. Chamado direto do toque em Tocar/Pausar/Retomar e a cada segundo. */
   sync(playing: boolean) {
     if (playing === this.wantPlaying) return
@@ -269,3 +274,9 @@ class Player {
 }
 
 export const player = new Player()
+
+/** Perfil: ouvir o lofi sem começar uma sessão. Não para o som de uma sessão tocando. */
+export function previewLofi(on: boolean): void {
+  if (on) lofi.start(state.volume)
+  else if (!player.active) lofi.stop()
+}
