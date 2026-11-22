@@ -89,7 +89,7 @@ cheia; mostrar o **celular** uma vez, para provar que é o mesmo app instalado.
   (3 por pessoa por dia; trilhas do catálogo não gastam cota). Gemini: o app alterna entre modelos.
 - **Música:** sem músicas próprias, o app gera um lofi com Web Audio (acordes, baixo, batida,
   estalos de vinil), calibrado para não estourar o volume. As músicas próprias ficam só no aparelho.
-- **Trilha em ~1 min:** os exercícios de todas as faixas são pedidos à IA ao mesmo tempo.
+- **Trilha mais rápida:** os exercícios de todas as faixas são pedidos à IA ao mesmo tempo (antes, um por vez: o "Vingadores" levou 5,5 min).
 - **Fluxo do clique ao banco:** o cronômetro roda no aparelho; ao concluir, a API valida, calcula
   pontos/meta/ofensiva e grava numa transação no PostgreSQL (sem duplicar se reenviar).
 
