@@ -6,6 +6,9 @@ import { getNickname } from '../auth/auth'
 import { CardSkeleton } from '../ui/Skeleton'
 import { Tip } from '../ui/Tip'
 import { Avatar } from '../ui/Avatar'
+import { DiscAvatar } from '../ui/DiscAvatar'
+
+const PODIUM_FINISH = ['Ouro', 'Prata', 'Vinil']
 
 export function RankingPage() {
   const { data: me, setData: setMe } = useApi<Me>('/me')
@@ -49,17 +52,31 @@ export function RankingPage() {
         <p className="muted">Ninguém no ranking ainda. Seja a primeira pessoa.</p>
       )}
       {ranking && ranking.top.length > 0 && (
-        <ol className="card list">
-          {ranking.top.map((row, i) => (
-            <li key={row.nickname} className="row" style={{ fontWeight: row.nickname === mine ? 700 : 400 }}>
-              <span className="muted" style={{ width: 28 }}>{i + 1}º</span>
-              <Avatar nickname={row.nickname} size={32} />
-              <span className="grow truncate">{row.nickname}{row.nickname === mine ? ' (você)' : ''}</span>
-              <span className="pill" title="Ofensiva">{row.streak} {row.streak === 1 ? 'dia' : 'dias'}</span>
-              <strong style={{ minWidth: 64, textAlign: 'right' }}>{row.week_points} pts</strong>
-            </li>
-          ))}
-        </ol>
+        <>
+          <ol className="podium" aria-label="Pódio">
+            {ranking.top.slice(0, 3).map((row, i) => (
+              <li key={row.nickname} className={`podium-spot p${i + 1}${row.nickname === mine ? ' me' : ''}`}>
+                <DiscAvatar nickname={row.nickname} level={PODIUM_FINISH[i]} size={i === 0 ? 112 : 88} />
+                <strong className="truncate">{row.nickname}</strong>
+                <span className="podium-points">{row.week_points} pts</span>
+                <span className="podium-step" aria-label={`${i + 1}º lugar`}>{i + 1}</span>
+              </li>
+            ))}
+          </ol>
+          {ranking.top.length > 3 && (
+            <ol className="card rank-list" start={4}>
+              {ranking.top.slice(3).map((row, i) => (
+                <li key={row.nickname} className={`rank-row${row.nickname === mine ? ' me' : ''}`}>
+                  <span className="rank-pos">{i + 4}</span>
+                  <Avatar nickname={row.nickname} size={34} />
+                  <span className="grow truncate rank-name">{row.nickname}{row.nickname === mine ? ' · você' : ''}</span>
+                  <span className="rank-streak" title="Ofensiva">{row.streak} {row.streak === 1 ? 'dia' : 'dias'}</span>
+                  <strong className="rank-points">{row.week_points} pts</strong>
+                </li>
+              ))}
+            </ol>
+          )}
+        </>
       )}
       </div>
 

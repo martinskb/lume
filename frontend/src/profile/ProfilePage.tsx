@@ -5,7 +5,7 @@ import type { Me } from '../api/types'
 import { useApi } from '../api/useApi'
 import { clearLogin, saveLogin, getToken } from '../auth/auth'
 import { formatHours } from '../topics/cover'
-import { Avatar } from '../ui/Avatar'
+import { DiscAvatar } from '../ui/DiscAvatar'
 import { InstallRow } from '../ui/InstallInvite'
 import { StudyMusicSection } from './StudyMusicSection'
 import { PageSkeleton } from '../ui/Skeleton'
@@ -64,7 +64,7 @@ export function ProfilePage() {
       <div className="columns profile-cols">
       <div className="profile-side">
       <section className="profile-head">
-        <Avatar nickname={me.nickname} size={88} />
+        <DiscAvatar nickname={me.nickname} level={stats?.best_level?.name} size={128} />
         <div className="stack" style={{ gap: 'var(--space-1)' }}>
           <h1>{me.nickname}</h1>
           {since && <span className="muted small">No Lume desde {since}</span>}

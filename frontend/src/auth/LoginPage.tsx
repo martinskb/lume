@@ -35,18 +35,20 @@ export function LoginPage() {
   }
 
   return (
-    <main className="login">
-      <section className="login-hero" aria-hidden="true">
-        <Logo size={40} />
-        <div className="stack" style={{ gap: 'var(--space-4)' }}>
-          <h2>Aprenda qualquer coisa, um disco de cada vez.</h2>
-          <p>Da matéria da faculdade à cronologia da Marvel: diga o que quer aprender e o Lume monta o caminho com os melhores vídeos gratuitos, acompanha seu tempo e mantém sua ofensiva acesa.</p>
+    <main className="login scene">
+      <section className="login-hero">
+        <Logo size={36} />
+        <div className="login-stage" aria-hidden="true">
+          <span className="login-glow" />
+          <Vinyl palette="noite" level="Ouro" spinning className="hero-disc" />
         </div>
-        <Vinyl palette="noite" level="Ouro" spinning className="hero-disc" />
+        <div className="login-copy">
+          <h2>Um disco de cada vez.</h2>
+          <p>Diga o que quer aprender. O Lume monta o caminho.</p>
+        </div>
       </section>
       <div className="login-form">
-        <div className="stack" style={{ gap: 'var(--space-4)' }}>
-          <span className="login-mobile-logo"><Logo size={40} /></span>
+        <div className="stack" style={{ gap: 'var(--space-2)' }}>
           <h1>Entrar</h1>
           <p className="muted">Apelido novo cria a conta na hora.</p>
         </div>
@@ -59,19 +61,19 @@ export function LoginPage() {
               autoCapitalize="none"
               autoComplete="username"
               maxLength={20}
-              placeholder="ex.: ana_ads"
             />
-            <span className="muted small" style={{ fontWeight: 500 }}>3 a 20 letras, números ou _</span>
+            {nickname && !nicknameOk && (
+              <span className="muted small" style={{ fontWeight: 500 }}>3 a 20 letras, números ou _</span>
+            )}
           </label>
           <label>
-            PIN
+            PIN de 4 números
             <input
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
               inputMode="numeric"
               type="password"
               autoComplete="current-password"
-              placeholder="4 dígitos"
             />
           </label>
           {error && <p className="error" role="alert">{error}</p>}

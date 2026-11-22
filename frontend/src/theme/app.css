@@ -326,9 +326,6 @@ textarea { min-height: 96px; resize: vertical; }
 .katex { font-size: 1.05em; }
 
 /* ---------- Entrar ---------- */
-.login { min-height: 100dvh; display: grid; grid-template-columns: 1fr; }
-.login-hero { display: none; }
-.login-form { display: flex; flex-direction: column; justify-content: center; gap: var(--space-5); padding: var(--space-6) var(--space-4); max-width: 480px; width: 100%; margin: 0 auto; }
 
 /* ---------- Animações ---------- */
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -416,21 +413,7 @@ textarea { min-height: 96px; resize: vertical; }
   .mini-timer { left: auto; right: var(--space-6); bottom: var(--space-6); width: 340px; }
   .mini-timer.on-shelf { display: none; }
 
-  .login { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .login-hero {
-    display: flex; flex-direction: column; justify-content: space-between;
-    padding: var(--space-7);
-    /* painel da marca: a sala escura com o disco, nos dois temas */
-    background: radial-gradient(circle at 70% 40%, #2e2418 0%, #120f0c 70%); color: #f4ede3;
-    position: relative; overflow: hidden;
-  }
-  .login-hero .brand, .login-hero .brand-word { color: #f4ede3; }
-  .login-hero h2 { font-size: 2.6rem; line-height: 1.1; max-width: 12ch; }
-  .login-hero p { opacity: 0.85; max-width: 36ch; font-size: 1.05rem; }
-  .login-hero .hero-disc { position: absolute; right: -140px; top: 12%; width: 480px; opacity: 0.9; }
-  .login-form { padding: var(--space-7); }
 }
-@media (min-width: 960px) { .login-mobile-logo { display: none; } }
 @media (min-width: 960px) { .home-logo { visibility: hidden; } }
 
 .desktop-only { display: none; }
@@ -1018,4 +1001,128 @@ textarea { min-height: 96px; resize: vertical; }
   .stage-loaded { display: flex; flex-direction: column; gap: var(--space-3); animation: rise 0.4s var(--ease) both; }
   .stage-open { align-self: flex-start; text-decoration: none; font-weight: 600; }
   .stage-hint { text-align: center; margin: 0; }
+}
+
+/* ---------- Entrar: sempre a sala escura, nos dois temas ---------- */
+.login {
+  min-height: 100dvh; display: flex; flex-direction: column; color-scheme: dark;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 18%, rgba(233, 167, 60, 0.16), transparent 70%),
+    linear-gradient(to bottom, #1c1712, #120f0c);
+}
+.login-hero {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--space-4);
+  padding: var(--space-6) var(--space-4) 0; text-align: center;
+}
+.login-hero .brand { align-self: flex-start; }
+.login-stage { position: relative; width: min(46vw, 200px); margin-top: var(--space-2); }
+.login-glow {
+  position: absolute; inset: -18%; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(233, 167, 60, 0.28), transparent);
+}
+.login-stage .hero-disc { position: relative; width: 100%; filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.6)); }
+.login-copy { display: flex; flex-direction: column; gap: var(--space-2); }
+.login-copy h2 { font-family: var(--font-display); font-size: clamp(1.7rem, 7vw, 2.2rem); line-height: 1.1; }
+.login-copy p { color: var(--muted); font-size: 1rem; }
+.login-form {
+  display: flex; flex-direction: column; gap: var(--space-5);
+  width: 100%; max-width: 420px; margin: 0 auto; padding: var(--space-6) var(--space-4) var(--space-7);
+}
+@media (min-width: 960px) {
+  .login { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: stretch; }
+  .login-hero {
+    justify-content: center; gap: clamp(var(--space-5), 4vh, var(--space-7));
+    padding: var(--space-7) clamp(var(--space-6), 5vw, 96px);
+    border-right: 1px solid var(--border);
+  }
+  .login-hero .brand { position: absolute; left: clamp(var(--space-6), 5vw, 96px); top: var(--space-7); }
+  .login-stage { width: clamp(260px, 30vw, 440px); }
+  .login-copy h2 { font-size: clamp(2.2rem, 3.2vw, 3.2rem); }
+  .login-copy p { font-size: clamp(1rem, 1.2vw, 1.2rem); }
+  .login-form { justify-content: center; max-width: 400px; padding: var(--space-7); }
+}
+
+/* ---------- Modo foco no computador: a sala ocupa a tela, sem a barra de cima ---------- */
+@media (min-width: 960px) {
+  body:has(.focus-page) .nav { display: none; }
+  body:has(.focus-page) .app-main { padding-top: 0; }
+  .focus-page.shell { max-width: none; min-height: 100dvh; padding-top: var(--space-6); justify-content: center; }
+  .focus-page .focus-top {
+    position: fixed; top: var(--space-6); left: var(--space-7); right: var(--space-7); z-index: 5;
+  }
+  /* a prateleira da parede fica atrás do toca-discos, sumindo antes das bordas */
+  .scene-bg::before {
+    left: 50%; right: auto; width: min(900px, 70vw); transform: translateX(-50%); top: 14%;
+    opacity: 0.6;
+    mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent);
+  }
+}
+
+/* ---------- Barra do computador com a cara do Lume: bandeja central com ícones ---------- */
+@media (min-width: 960px) {
+  .nav-links {
+    flex: 0 0 auto; margin: 0 auto; padding: 5px; gap: 2px;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px;
+  }
+  .nav a { min-height: 38px; padding: 0 var(--space-4) 0 var(--space-3); color: var(--muted); }
+  .nav a svg { display: block; width: 17px; height: 17px; }
+  .nav a:hover { background: var(--surface-3); color: var(--text); }
+  .nav a.active { background: var(--accent-soft); color: var(--accent-soft-text); }
+  .nav a.active svg { transform: none; }
+  .nav a.nav-profile { background: transparent; border: 0; }
+  .nav a.nav-profile.active { background: var(--accent-soft); }
+}
+
+/* ---------- Pessoa como disco (perfil e pódio) ---------- */
+.disc-avatar { position: relative; display: inline-block; flex: none; }
+.disc-avatar .vinyl { width: 100%; box-shadow: 0 14px 28px -12px rgba(0, 0, 0, 0.6); }
+.disc-avatar .avatar {
+  position: absolute; left: 50%; top: 50%; z-index: 2; transform: translate(-50%, -50%);
+  font-family: var(--font-display); box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- Ranking: pódio de discos + lista ---------- */
+.podium {
+  list-style: none; margin: 0; padding: var(--space-5) 0 0; display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: var(--space-3);
+}
+.podium-spot { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; text-align: center; }
+.podium-spot.p1 { order: 2; }
+.podium-spot.p2 { order: 1; }
+.podium-spot.p3 { order: 3; }
+.podium-spot strong { max-width: 100%; font-weight: 650; margin-top: var(--space-2); }
+.podium-spot.me strong { color: var(--accent-ink); }
+.podium-points { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.podium-step {
+  width: 100%; margin-top: var(--space-2); display: flex; align-items: flex-start; justify-content: center;
+  padding-top: var(--space-2); border-radius: 14px 14px 4px 4px;
+  font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--muted);
+  background: linear-gradient(to bottom, var(--surface-2), var(--surface));
+}
+.podium-spot.p1 .podium-step { height: 96px; color: var(--accent-ink); background: linear-gradient(to bottom, var(--accent-soft), var(--surface)); }
+.podium-spot.p2 .podium-step { height: 68px; }
+.podium-spot.p3 .podium-step { height: 48px; }
+@media (prefers-reduced-motion: no-preference) {
+  .podium-spot .disc-avatar { animation: pop-in 0.6s var(--ease) both; }
+  .podium-spot.p2 .disc-avatar { animation-delay: 0.1s; }
+  .podium-spot.p3 .disc-avatar { animation-delay: 0.2s; }
+}
+.rank-list { list-style: none; margin: 0; padding: var(--space-2); display: flex; flex-direction: column; gap: 2px; }
+.rank-row { display: flex; align-items: center; gap: var(--space-3); padding: 10px var(--space-3); border-radius: 14px; }
+.rank-row.me { background: var(--accent-soft); color: var(--accent-soft-text); }
+.rank-pos { width: 22px; text-align: center; font-family: var(--font-display); font-weight: 700; color: var(--muted); }
+.rank-name { font-weight: 600; }
+.rank-streak { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+.rank-points { min-width: 62px; text-align: right; font-variant-numeric: tabular-nums; }
+.ranking-me .stat { font-family: var(--font-display); font-size: 2.6rem; }
+
+/* ---------- Perfil ---------- */
+.profile-page .stat { font-family: var(--font-display); font-weight: 600; }
+.profile-page .stat-grid .card { gap: 4px; }
+.profile-head h1 { font-family: var(--font-display); }
+@media (min-width: 960px) {
+  .profile-side { display: flex; flex-direction: column; gap: var(--space-5); }
+  .profile-side .profile-head { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+  .profile-side .profile-head h1 { font-size: 1.9rem; }
 }
