@@ -2,127 +2,113 @@
 
 **Aprenda qualquer coisa, um disco de cada vez.**
 
-O Lume é um app web (PWA) que ajuda a criar **constância** para aprender: da matéria da faculdade à cronologia da Marvel. Cada tema que a pessoa está aprendendo vira um álbum na estante: capa, disco que gira enquanto o cronômetro de foco roda, ofensiva de dias seguidos e um disco que vai de vinil a diamante com as horas focadas. Se quiser, o Lume monta uma trilha com os melhores vídeos gratuitos do YouTube e exercícios de fixação gerados por IA.
+Lume é um aplicativo web (PWA) de estudo focado em constância. Cada tema que a pessoa está aprendendo vira um álbum na estante: o disco gira enquanto o cronômetro de foco corre, a ofensiva conta os dias seguidos e o acabamento do disco evolui de vinil a diamante conforme as horas de estudo. Opcionalmente, o Lume monta uma trilha com vídeos gratuitos do YouTube e exercícios de fixação gerados por IA.
 
-Projeto da disciplina Tópicos Integradores — Análise e Desenvolvimento de Sistemas, UNAMA (Belém, PA). O pré-projeto original está em [`ideia/`](ideia/).
+- **Aplicativo:** https://lume-foco.vercel.app
+- **API:** https://estudo-api-1k65.onrender.com
 
-- **App:** https://lume-foco.vercel.app
-- **Código:** https://github.com/martinskb/lume
-- **API:** https://estudo-api-1k65.onrender.com (plano grátis: dorme após 15 min sem uso e leva ~1 min para acordar)
-
-## O que ele faz
+## Funcionalidades
 
 | | |
 |---|---|
-| **Estante** | Cada tema é um álbum (foto em duotone nas cores da capa, ou capa automática) com o disco aparecendo, em prateleiras Aprendendo e Concluídos. Segurar o álbum (ou botão direito) abre o menu do app: tocar, trocar/tirar foto, concluir, apagar. Criar tema é instantâneo, sem IA, pelo botão + do meio da barra. |
-| **Músicas para estudar** | No Perfil, a pessoa adiciona os próprios arquivos de música; ficam só no aparelho e tocam baixinho enquanto o disco gira. |
-| **Foco** | O play do tema transforma a tela numa sala à meia-luz: o toca-discos em ângulo sobre a mesa, o disco girando enquanto o cronômetro roda e o braço avançando pelos sulcos até a meta (15/25/45/60 min ou outro valor pelo lápis). Pausar, concluir e descartar ficam ali mesmo; na trilha, o toca-discos fica junto das aulas. Sobrevive a recarregar a página ou bloquear o celular. |
-| **Constância** | Ofensiva de dias seguidos com proteção (+1 a cada 7 dias, até 2), pontos (10 por sessão de 20 min+, até 3 por dia), meta de dias por semana. |
-| **Níveis do disco** | Por tema: Vinil → Prata (1 h) → Ouro (5 h) → Platina (15 h) → Diamante (40 h); o acabamento do disco mostra o nível, com animação e som ao subir. |
-| **Trilha com vídeos** (opcional) | A IA divide o tema em partes; cada parte recebe vídeos reais do YouTube e exercícios gerados a partir do conteúdo do vídeo. |
-| **Assistente** | Ícone discreto no canto do foco e da trilha; abre um campo simples ("Qual a sua dúvida?") por cima da tela. A resposta aparece enquanto a IA escreve (~1 s até o primeiro trecho), com fórmulas desenhadas (KaTeX). Usa os modelos Gemini "lite" com raciocínio baixo: 10/10 num teste de contas e conceitos, contra 30–60 s de espera do modelo maior no plano grátis. |
-| **Progresso e ranking** | Calendário de dias estudados, minutos por tema, histórico; ranking semanal opcional por apelido. |
-| **Perfil** | Avatar com inicial, trocar apelido, números gerais, sons liga/desliga, músicas para estudar e "Instalar o app" (abre em tela cheia). |
+| **Estante** | Temas organizados como álbuns, nas prateleiras *Aprendendo* e *Concluídos*. Capa com foto em duotone ou gerada automaticamente. |
+| **Sessão de foco** | Toca-discos em tela cheia com cronômetro e meta (15, 25, 45, 60 min ou personalizada). Pausar, concluir e descartar na mesma tela; a sessão sobrevive a recarregar a página ou bloquear o celular. |
+| **Constância** | Ofensiva de dias seguidos com proteções acumuláveis, pontos por sessão e meta semanal de dias. |
+| **Níveis do disco** | Por tema: Vinil → Prata (1 h) → Ouro (5 h) → Platina (15 h) → Diamante (40 h). |
+| **Trilhas** | A IA divide o tema em partes; cada parte recebe vídeos reais do YouTube e exercícios gerados a partir do conteúdo do vídeo. |
+| **Assistente** | Dúvidas respondidas em streaming durante o foco ou a trilha, com suporte a fórmulas (KaTeX). |
+| **Progresso e ranking** | Calendário de dias estudados, minutos por tema, histórico e ranking semanal opcional. |
+| **Músicas para estudar** | Arquivos de áudio do próprio usuário, guardados apenas no aparelho. |
 
-Visual "vinil": creme ou preto quente com âmbar, títulos em Fraunces. Tema claro/escuro segue o dispositivo (o foco é sempre a sala escura). Funciona no celular (barra embaixo com o + no meio) e no computador (barra discreta no topo, toca-discos ao lado da estante).
+Tema claro e escuro conforme o sistema, layout próprio para celular e computador e instalação como aplicativo.
 
-## Como é feito
+## Arquitetura
 
-```
-frontend/  React 19 + Vite + TypeScript, PWA (vite-plugin-pwa)   → Vercel
-backend/   FastAPI + SQLAlchemy 2 (Python 3.12, uv)              → Render
-banco      Postgres (Neon) em produção, SQLite local e nos testes
-IA         Gemini (plano grátis, troca de modelo quando a cota de um acaba)
-vídeos     YouTube Data API v3 (só links de busca real; a IA nunca inventa link)
-```
-
-Pastas principais:
+| Camada | Tecnologia | Hospedagem |
+|---|---|---|
+| Frontend | React 19, Vite, TypeScript, vite-plugin-pwa | Vercel |
+| Backend | FastAPI, SQLAlchemy 2, Python 3.12 (uv) | Render |
+| Banco de dados | PostgreSQL em produção; SQLite em desenvolvimento e testes | Neon |
+| IA | Google Gemini, com troca automática de modelo ao esgotar a cota | — |
+| Vídeos | YouTube Data API v3 (somente resultados reais de busca) | — |
 
 ```
 backend/app/
-  auth.py            entrada por apelido + PIN (bloqueio após 5 erros)
-  study/             sessões, pontos e meta
-  progress/          ofensiva com proteção, /progress
-  topics/            estante: temas, capas, níveis do disco, migração dos dados antigos
-  trails/            trilhas (geração em segundo plano), catálogo
-  exercises/         exercícios de fixação
-  assistant/         assistente de dúvidas
-  ranking/  profile/
-  ai/                cliente do Gemini (com defesas contra prompt injection) e do YouTube
-backend/scripts/     seed_catalog, seed_demo_users, seed_demo_account, dev_fake
+  auth.py        autenticação por apelido + PIN, com bloqueio após tentativas
+  topics/        estante: temas, capas e níveis do disco
+  study/         sessões de foco, pontos e metas
+  progress/      ofensiva e estatísticas
+  trails/        geração de trilhas em segundo plano e catálogo
+  exercises/     exercícios de fixação
+  assistant/     assistente de dúvidas
+  ranking/       ranking semanal
+  profile/       perfil do usuário
+  ai/            clientes do Gemini e do YouTube
+backend/scripts/ utilitários de desenvolvimento e carga de dados
+
 frontend/src/
-  home/  topics/  timer/  trails/  progress/  ranking/  profile/  auth/
-  api/               cliente HTTP + cache stale-while-revalidate
-  ui/                skeleton, dicas que aparecem uma vez, sons, confirmação em dois toques
-  local/             fotos das capas e músicas guardadas só no aparelho (IndexedDB)
-  vinyl/             disco (acabamento pelo nível), capa com disco e toca-discos
-  theme/             tokens de cor (claro/escuro) e estilos
+  home/ topics/ timer/ trails/ progress/ ranking/ profile/ auth/
+  api/           cliente HTTP com cache stale-while-revalidate
+  local/         capas e músicas guardadas no aparelho (IndexedDB)
+  vinyl/         disco, capa e toca-discos
+  ui/            componentes compartilhados
+  theme/         tokens de cor e estilos globais
 ```
 
-## Rodar localmente
+## Desenvolvimento
 
-Requisitos: Python 3.12+ com [uv](https://docs.astral.sh/uv/) e Node 20+.
+Requisitos: Python 3.12+ com [uv](https://docs.astral.sh/uv/) e Node.js 20+.
 
-**Sem chaves (IA e YouTube simulados, banco local):**
+**Modo local sem chaves** (IA e YouTube simulados, banco SQLite):
 
 ```bash
-cd backend && uv sync && uv run python -m scripts.dev_fake   # API em :8000, banco dev_fake.db
-cd frontend && npm install && npm run dev                    # app em :5173
+cd backend && uv sync && uv run python -m scripts.dev_fake   # API em http://localhost:8000
+cd frontend && npm install && npm run dev                    # app em http://localhost:5173
 ```
 
-**Com as APIs reais:** copie `backend/.env.example` para `backend/.env`, preencha e rode `uv run uvicorn app.main:app --reload`.
+**Com os serviços reais:** copie `backend/.env.example` para `backend/.env`, preencha as variáveis e rode `uv run uvicorn app.main:app --reload`.
 
-| Variável | Para quê |
+| Variável | Descrição |
 |---|---|
-| `DATABASE_URL` | Postgres (Neon) — local pode ficar `sqlite:///./dev.db` |
-| `GEMINI_API_KEY` | chave do Google AI Studio |
-| `GEMINI_MODEL` | lista em ordem de preferência, separada por vírgula |
-| `YOUTUBE_API_KEY` | YouTube Data API v3 |
-| `CORS_ORIGINS` | endereços do site, separados por vírgula |
-| `NEW_TRAILS_PER_DAY` | trilhas novas por pessoa por dia (padrão 3). A cota do YouTube é do app inteiro: cada trilha gasta ~400–600 de 10.000/dia |
-| `VITE_API_URL` (frontend) | endereço da API |
+| `DATABASE_URL` | URL do PostgreSQL (em desenvolvimento, `sqlite:///./dev.db`) |
+| `GEMINI_API_KEY` | Chave do Google AI Studio |
+| `GEMINI_MODEL` | Modelos em ordem de preferência, separados por vírgula |
+| `YOUTUBE_API_KEY` | Chave da YouTube Data API v3 |
+| `CORS_ORIGINS` | Origens permitidas, separadas por vírgula |
+| `NEW_TRAILS_PER_DAY` | Limite de trilhas novas por usuário por dia (padrão: 3) |
+| `VITE_API_URL` *(frontend)* | Endereço da API |
 
-## Testes
+### Testes
 
 ```bash
-cd backend && uv run pytest -q      # ~180 testes
-cd frontend && npx vitest run       # ~60 testes
+cd backend && uv run pytest -q
+cd frontend && npx vitest run
 ```
 
-## Scripts úteis (`backend/`)
+### Scripts
 
-| Comando | O que faz |
+| Comando (em `backend/`) | Descrição |
 |---|---|
-| `uv run python -m scripts.seed_catalog` | gera os temas do catálogo (`scripts/catalog_topics.txt`) |
-| `uv run python -m scripts.seed_demo_users` | usuários de exemplo para o ranking |
-| `uv run python -m scripts.seed_demo_account <apelido> <AAAA-MM-DD> "<trilha>" …` | histórico para a conta da apresentação |
+| `uv run python -m scripts.dev_fake` | Sobe a API com IA e YouTube simulados |
+| `uv run python -m scripts.seed_catalog` | Gera os temas do catálogo a partir de `scripts/catalog_topics.txt` |
+| `uv run python -m scripts.seed_demo_users` | Cria usuários de exemplo para o ranking |
 
-## Publicação
+## Deploy
 
-- **Render:** Blueprint a partir de `render.yaml` (pasta `backend`); variáveis acima no painel.
-- **Vercel:** projeto com raiz `frontend`, preset Vite, `VITE_API_URL` apontando para a API. Domínio: `lume-foco.vercel.app` (o antigo `estudo-gamificado-two.vercel.app` continua respondendo).
-- **CORS:** `CORS_ORIGINS` no Render precisa listar cada domínio do site, sem barra no fim.
-- **Trocar de domínio apaga, para quem usa, o login, as fotos das capas e as músicas** (o navegador guarda isso por domínio). Evitar depois que o piloto começar.
-- Cada `git push` na `main` publica os dois.
-- **Servidor acordado:** o Render grátis dorme após 15 min sem acesso e a primeira requisição depois disso leva ~30–60 s. O workflow [`keep-awake.yml`](.github/workflows/keep-awake.yml) acessa `/health` a cada 5 min (as 750 h/mês do plano cobrem o mês inteiro ligado). Agendamentos do GitHub podem atrasar e são pausados após 60 dias sem commits; o monitor do UptimeRobot, quando criado, vira o principal.
+- **Backend (Render):** Blueprint definido em [`render.yaml`](render.yaml), com as variáveis de ambiente configuradas no painel.
+- **Frontend (Vercel):** raiz em `frontend/`, preset Vite e `VITE_API_URL` apontando para a API.
+- Cada push na `main` publica as duas partes.
+- O workflow [`keep-awake.yml`](.github/workflows/keep-awake.yml) consulta `/health` periodicamente para evitar a hibernação do plano gratuito do Render.
 
 ## Privacidade e segurança
 
-- Dados mínimos (LGPD): apelido e PIN, sem nome, e-mail ou matrícula. Fotos das capas e músicas ficam só no aparelho da pessoa (o servidor não guarda imagens nem áudio).
-- Nada pessoal vai para a IA: só o texto do tema, da pergunta e a URL do vídeo.
-- Prompt injection: texto de fora entra como dado cercado por marcadores aleatórios; tema que não é para aprender é recusado; partes, exercícios e respostas não podem ter links ou contatos; HTML vindo da IA nunca é executado.
-- Chaves só no servidor; o cache do app é apagado ao sair da conta.
+- Coleta mínima de dados: apenas apelido e PIN, sem nome ou e-mail. Fotos de capa e músicas ficam somente no aparelho.
+- Nenhum dado pessoal é enviado à IA, apenas o texto do tema, da pergunta e a URL do vídeo.
+- Proteção contra prompt injection: conteúdo externo é delimitado por marcadores aleatórios, temas fora do propósito de estudo são recusados e respostas da IA não podem conter links nem HTML executável.
+- Chaves de API ficam apenas no servidor; o cache local é apagado ao sair da conta.
 
-## Documentação
+## Roadmap
 
-- [Design (spec)](docs/superpowers/specs/2026-11-13-estudo-gamificado-design.md) — intenção, decisões e o que mudou desde o pré-projeto
-- [Plano da Fase 1](docs/superpowers/plans/2026-11-13-estudo-gamificado-fase1.md)
-- [Checklist da demo](docs/demo-checklist.md)
-
-## Próximos passos
-
-- **Contas:** senha de verdade (no lugar do PIN) e **Conectar com Google** opcional, que libera ranking e foto de perfil. Detalhes no design.
-- **Piloto:** modo semana de base, códigos de participante e exportação CSV dos indicadores.
-- **Monitor do UptimeRobot:** falta só autorizar o login com GitHub no UptimeRobot e criar o monitor HTTP de `https://estudo-api-1k65.onrender.com/health` a cada 5 min (ele também avisa por e-mail se o servidor cair). Até lá, o agendamento do GitHub segura o servidor acordado (veja Publicação).
-- **Exercícios** a partir de PDF/slides do aluno.
-- **Play Store (quando decidirem publicar):** gerar o APK/AAB como TWA com o [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap) a partir do site, publicar `/.well-known/assetlinks.json` na Vercel (para abrir sem barra de endereço) e criar a conta de desenvolvedor (US$ 25, uma vez). Até lá, no Android o botão "Instalar" do app já gera um app de verdade (WebAPK); no iPhone, o convite ensina a adicionar à Tela de Início.
+- Autenticação com senha e login opcional com Google.
+- Exercícios gerados a partir de PDFs e slides do usuário.
+- Publicação na Play Store como TWA.

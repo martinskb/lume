@@ -1,5 +1,5 @@
 """Cria alguns usuários de exemplo com sessões nos últimos 10 dias, para o ranking não
-aparecer vazio na demonstração.
+aparecer vazio em ambientes de teste ou demonstração.
 
 Uso:  uv run python -m scripts.seed_demo_users
 Pode rodar de novo: quem já existe é pulado. São contas de exemplo, sem dono.
@@ -74,43 +74,3 @@ if __name__ == "__main__":
     Base.metadata.create_all(engine)
     seed_demo_users(SessionLocal)
     print("Usuários de exemplo:", ", ".join(DEMO_NICKNAMES))
-
-
-def top_up_demo_users(session_factory: sessionmaker, through) -> None:
-    """Uma sessão por dia para cada usuário de exemplo, de amanhã até `through` (inclusive).
-
-    No dia `through` a sessão termina cedo (antes das 8h em Belém): assim, na manhã da
-    apresentação, o ranking da semana nova já tem gente e as ofensivas continuam.
-    """
-    from datetime import date, time
-
-    from app.study.rules import BELEM
-
-    today = datetime.now(BELEM).date()
-    with session_factory() as db:
-        users = db.scalars(select(User).where(User.nickname_lower.in_([n.lower() for n in DEMO_NICKNAMES]))).all()
-        for index, user in enumerate(users):
-            day = today + timedelta(days=1)
-            while day <= through:
-                client_id = f"demo-topup-{user.id}-{day.isoformat()}"
-                if not db.scalar(select(StudySession.id).where(StudySession.user_id == user.id, StudySession.client_id == client_id)):
-                    hour = 6 if day == through else 18
-                    local_end = datetime.combine(day, time(hour, 5 + index * 8), tzinfo=BELEM)
-                    ended = local_end.astimezone(UTC).replace(tzinfo=None)
-                    active = 1500 + index * 120
-                    db.add(
-                        StudySession(
-                            client_id=client_id,
-                            user_id=user.id,
-                            topic=TOPICS[index % len(TOPICS)],
-                            goal_minutes=25,
-                            started_at=ended - timedelta(seconds=active),
-                            ended_at=ended,
-                            active_seconds=active,
-                            points=points_for_session(active, 0),
-                            goal_met=goal_met(active, 25),
-                            day=day,
-                        )
-                    )
-                day += timedelta(days=1)
-        db.commit()

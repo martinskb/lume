@@ -1,4 +1,4 @@
-"""Regras puras de pontuação e meta (ver Global Constraints do plano)."""
+"""Regras puras de pontuação e meta."""
 from datetime import UTC, date, datetime
 from zoneinfo import ZoneInfo
 

@@ -7,3 +7,8 @@ dist/
 .superpowers/
 .pytest_cache/
 dev_fake.db
+
+# Material de trabalho local (fora do repositório)
+ideia/
+referencias/
+docs/

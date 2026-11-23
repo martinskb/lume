@@ -13,8 +13,3 @@ export function shouldSignalGoal(t: TimerState, now: number, storage: Pick<Stora
   }
   return true
 }
-
-/** Segundos desde que bateu a meta (negativo antes). A tela usa para o brilho dos primeiros segundos. */
-export function secondsPastGoal(t: TimerState, now: number): number {
-  return activeSeconds(t, now) - t.goalMinutes * 60
-}
