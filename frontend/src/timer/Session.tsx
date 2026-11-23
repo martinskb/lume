@@ -79,7 +79,7 @@ type RunningProps = {
   session: ReturnType<typeof useSession>
   /** Linha acima do relógio (ex.: "Faixa 02 · Verbo to be"). */
   caption?: string
-  /** Na trilha (ao lado das aulas): toca-discos reto, sem o cenário. */
+  /** Na trilha no computador (ao lado das aulas): toca-discos reto, sem o cenário. */
   compact?: boolean
 }
 

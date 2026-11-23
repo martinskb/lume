@@ -307,7 +307,8 @@ textarea { min-height: 96px; resize: vertical; }
 .mini-clock { font-family: var(--font-display); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
 
 /* ---------- Exercícios ---------- */
-.option { justify-content: flex-start; text-align: left; height: auto; min-height: 56px; padding: var(--space-3) var(--space-4); font-weight: 500; background: var(--surface-2); }
+/* .btn.option: vence o `.btn { white-space: nowrap }` de mais abaixo; alternativas longas quebram linha. */
+.btn.option { justify-content: flex-start; text-align: left; height: auto; min-height: 56px; padding: var(--space-3) var(--space-4); font-weight: 500; background: var(--surface-2); white-space: normal; overflow-wrap: anywhere; }
 .option:hover:not(:disabled) { background: var(--surface-3); }
 .option:disabled { opacity: 1; }
 .option-letter { font-weight: 800; color: var(--muted); width: 1.4em; flex: none; }
