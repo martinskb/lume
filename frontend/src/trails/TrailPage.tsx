@@ -302,8 +302,6 @@ function PartBody({ trail, part, disc, onDone, onOpenPart }: BodyProps) {
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const playerRef = useRef<HTMLDivElement>(null)
-  // No computador o toca-discos fica reto ao lado das aulas; no celular, o mesmo cenário 3D da sessão do tema.
-  const wide = useWide()
 
   const [goal, setGoal] = useState(25)
   const session = useSession({
@@ -369,7 +367,7 @@ function PartBody({ trail, part, disc, onDone, onOpenPart }: BodyProps) {
 
       <div className="action-list">
         {session.mine ? (
-          <RunningSession session={session} compact={wide} caption={`Faixa ${String(part.order).padStart(2, '0')} · ${part.title}`} />
+          <RunningSession session={session} caption={`Faixa ${String(part.order).padStart(2, '0')} · ${part.title}`} />
         ) : session.other ? (
           <OtherSession
             timer={session.other}
